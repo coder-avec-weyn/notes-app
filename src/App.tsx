@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Navigate, Route, Routes, useRoutes } from "react-router-dom";
+import { Navigate, Route, Routes, useRoutes, Link } from "react-router-dom";
 import routes from "tempo-routes";
 import LoginForm from "./components/auth/LoginForm";
 import SignUpForm from "./components/auth/SignUpForm";
@@ -10,6 +10,7 @@ import { ToastProvider } from "./components/ui/toast-provider";
 import { LoadingScreen } from "./components/ui/loading-spinner";
 import ProfilePage from "./components/pages/ProfilePage";
 import SettingsPage from "./components/pages/SettingsPage";
+import { User, Settings } from "lucide-react";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -72,11 +73,13 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <Suspense fallback={<LoadingScreen text="Loading Personal Notes..." />}>
-        <AppRoutes />
-      </Suspense>
-      <Toaster />
-      <ToastProvider />
+      <div className="min-h-screen bg-background">
+        <Suspense fallback={<LoadingScreen text="Loading Personal Notes..." />}>
+          <AppRoutes />
+        </Suspense>
+        <Toaster />
+        <ToastProvider />
+      </div>
     </AuthProvider>
   );
 }

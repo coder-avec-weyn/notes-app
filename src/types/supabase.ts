@@ -612,6 +612,7 @@ export type Database = {
           status: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -624,6 +625,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -636,6 +638,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -647,6 +650,21 @@ export type Database = {
       expire_invitations: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      generate_username_from_email: {
+        Args: { email_input: string }
+        Returns: string
+      }
+      search_users: {
+        Args: { search_term: string; requesting_user_id: string }
+        Returns: {
+          user_id: string
+          username: string
+          display_name: string
+          avatar_url: string
+          email: string
+          friendship_status: string
+        }[]
       }
     }
     Enums: {

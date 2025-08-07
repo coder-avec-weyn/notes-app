@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../../supabase/auth";
+import { supabase } from "../../../supabase/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft,
   Camera,
@@ -15,6 +17,9 @@ import {
   Calendar,
   MapPin,
   Link as LinkIcon,
+  AtSign,
+  Save,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -23,17 +28,105 @@ import { toast } from "react-hot-toast";
 export default function ProfilePage() {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
-    displayName: user?.email?.split("@")[0] || "",
-    bio: "Passionate note-taker and productivity enthusiast",
-    location: "San Francisco, CA",
-    website: "https://example.com",
+    username: "",
+    displayName: "",
+    bio: "",
+    location: "",
+    website: "",
+    avatarUrl: "",
     joinedDate: new Date().toLocaleDateString(),
   });
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  const loadProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user?.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        throw error;
+      }
+
+      if (data) {
+        setProfile({
+          username: data.username || "",
+          displayName: data.display_name || "",
+          bio: data.bio || "",
+          location: "", // Add location field to database if needed
+          website: "", // Add website field to database if needed
+          avatarUrl: data.avatar_url || "",
+          joinedDate: new Date(data.created_at).toLocaleDateString(),
+        });
+      } else {
+        // Create profile if it doesn't exist
+        const { error: createError } = await supabase
+          .from("user_profiles")
+          .insert({
+            user_id: user?.id,
+            display_name: user?.email?.split("@")[0] || "",
+            username: user?.email?.split("@")[0] || "",
+          });
+
+        if (createError) {
+          console.error("Error creating profile:", createError);
+        } else {
+          loadProfile(); // Reload after creation
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      toast.error("Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({
+          username: profile.username,
+          display_name: profile.displayName,
+          bio: profile.bio,
+          avatar_url: profile.avatarUrl,
+        })
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      if (
+        error.code === "23505" &&
+        error.constraint === "user_profiles_username_key"
+      ) {
+        toast.error("Username already taken. Please choose a different one.");
+      } else {
+        toast.error("Failed to update profile");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
     setIsEditing(false);
-    toast.success("Profile updated successfully!");
+    loadProfile(); // Reload original data
   };
 
   const stats = [
@@ -42,6 +135,14 @@ export default function ProfilePage() {
     { label: "Days Active", value: "89" },
     { label: "Words Written", value: "12.5K" },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -93,9 +194,14 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-                      {profile.displayName}
+                      {profile.displayName ||
+                        profile.username ||
+                        "Unknown User"}
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">
+                      @{profile.username || "unknown"}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">
                       {user?.email}
                     </p>
                     <Badge variant="secondary" className="mb-4">
@@ -110,18 +216,28 @@ export default function ProfilePage() {
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                      <MapPin className="h-4 w-4" />
-                      <span>{profile.location}</span>
+                      <AtSign className="h-4 w-4" />
+                      <span>@{profile.username || "unknown"}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                      <LinkIcon className="h-4 w-4" />
-                      <a
-                        href={profile.website}
-                        className="text-blue-600 hover:underline"
-                      >
-                        {profile.website}
-                      </a>
-                    </div>
+                    {profile.location && (
+                      <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                        <MapPin className="h-4 w-4" />
+                        <span>{profile.location}</span>
+                      </div>
+                    )}
+                    {profile.website && (
+                      <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                        <LinkIcon className="h-4 w-4" />
+                        <a
+                          href={profile.website}
+                          className="text-blue-600 hover:underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {profile.website}
+                        </a>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
                       <Calendar className="h-4 w-4" />
                       <span>Joined {profile.joinedDate}</span>
@@ -170,18 +286,64 @@ export default function ProfilePage() {
               <Card className="bg-white dark:bg-gray-800">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Profile Information</CardTitle>
-                  <Button
-                    variant={isEditing ? "default" : "outline"}
-                    size="sm"
-                    onClick={() =>
-                      isEditing ? handleSave() : setIsEditing(true)
-                    }
-                  >
-                    {isEditing ? "Save Changes" : "Edit Profile"}
-                  </Button>
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancel}
+                          disabled={saving}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSave}
+                          disabled={saving}
+                        >
+                          <Save className="h-4 w-4 mr-1" />
+                          {saving ? "Saving..." : "Save"}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        Edit Profile
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="username">Username</Label>
+                      <div className="relative">
+                        <AtSign className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="username"
+                          value={profile.username}
+                          onChange={(e) =>
+                            setProfile({
+                              ...profile,
+                              username: e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9_]/g, ""),
+                            })
+                          }
+                          disabled={!isEditing}
+                          className="mt-1 pl-9"
+                          placeholder="username"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Only lowercase letters, numbers, and underscores
+                      </p>
+                    </div>
                     <div>
                       <Label htmlFor="displayName">Display Name</Label>
                       <Input
@@ -195,8 +357,11 @@ export default function ProfilePage() {
                         }
                         disabled={!isEditing}
                         className="mt-1"
+                        placeholder="Your display name"
                       />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="location">Location</Label>
                       <Input
@@ -207,24 +372,26 @@ export default function ProfilePage() {
                         }
                         disabled={!isEditing}
                         className="mt-1"
+                        placeholder="City, Country"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="website">Website</Label>
+                      <Input
+                        id="website"
+                        value={profile.website}
+                        onChange={(e) =>
+                          setProfile({ ...profile, website: e.target.value })
+                        }
+                        disabled={!isEditing}
+                        className="mt-1"
+                        placeholder="https://yourwebsite.com"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      value={profile.website}
-                      onChange={(e) =>
-                        setProfile({ ...profile, website: e.target.value })
-                      }
-                      disabled={!isEditing}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
                     <Label htmlFor="bio">Bio</Label>
-                    <Input
+                    <Textarea
                       id="bio"
                       value={profile.bio}
                       onChange={(e) =>
@@ -232,6 +399,8 @@ export default function ProfilePage() {
                       }
                       disabled={!isEditing}
                       className="mt-1"
+                      placeholder="Tell us about yourself..."
+                      rows={3}
                     />
                   </div>
                 </CardContent>
