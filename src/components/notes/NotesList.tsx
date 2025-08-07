@@ -7,12 +7,24 @@ interface NotesListProps {
   notes: Note[];
   selectedNote: Note | null;
   onSelectNote: (note: Note) => void;
+  viewMode?: "list" | "grid";
+  favoriteNotes?: string[];
+  archivedNotes?: string[];
+  onToggleFavorite?: (noteId: string) => void;
+  onToggleArchive?: (noteId: string) => void;
+  darkMode?: boolean;
 }
 
 export function NotesList({
   notes,
   selectedNote,
   onSelectNote,
+  viewMode = "list",
+  favoriteNotes = [],
+  archivedNotes = [],
+  onToggleFavorite,
+  onToggleArchive,
+  darkMode = false,
 }: NotesListProps) {
   if (notes.length === 0) {
     return (

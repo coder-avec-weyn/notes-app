@@ -16,6 +16,7 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ChatGroups from "../chat/ChatGroups";
 import {
   Dialog,
   DialogContent,
@@ -420,6 +421,18 @@ export default function NotesApp() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<
+    | "notes"
+    | "chat"
+    | "templates"
+    | "analytics"
+    | "calendar"
+    | "kanban"
+    | "mindmap"
+    | "pomodoro"
+    | "habits"
+    | "goals"
+  >("notes");
 
   // Keyboard shortcuts
   useHotkeys("ctrl+n, cmd+n", (e) => {
@@ -700,12 +713,86 @@ export default function NotesApp() {
         className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-b px-6 py-4 flex items-center justify-between transition-colors duration-300`}
       >
         <div className="flex items-center gap-4">
-          <motion.h1
-            className={`text-2xl font-semibold ${darkMode ? "text-white" : "text-gray-900"} transition-colors duration-300`}
-            whileHover={{ scale: 1.05 }}
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as any)}
+            className="flex items-center gap-4"
           >
-            Personal Notes
-          </motion.h1>
+            <TabsList
+              className={`${darkMode ? "bg-gray-800 border-gray-700" : "bg-gray-100 border-gray-200"} border rounded-lg p-1 shadow-sm`}
+            >
+              <TabsTrigger
+                value="notes"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "notes" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">📝</span>
+                Notes
+              </TabsTrigger>
+              <TabsTrigger
+                value="chat"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "chat" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">💬</span>
+                Chat
+              </TabsTrigger>
+              <TabsTrigger
+                value="templates"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "templates" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">📋</span>
+                Templates
+              </TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "analytics" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">📊</span>
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger
+                value="calendar"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "calendar" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">📅</span>
+                Calendar
+              </TabsTrigger>
+              <TabsTrigger
+                value="kanban"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "kanban" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">📌</span>
+                Kanban
+              </TabsTrigger>
+              <TabsTrigger
+                value="mindmap"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "mindmap" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">🧠</span>
+                Mind Map
+              </TabsTrigger>
+              <TabsTrigger
+                value="pomodoro"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "pomodoro" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">⏰</span>
+                Pomodoro
+              </TabsTrigger>
+              <TabsTrigger
+                value="habits"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "habits" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">✅</span>
+                Habits
+              </TabsTrigger>
+              <TabsTrigger
+                value="goals"
+                className={`text-sm px-3 py-1.5 rounded-md transition-all duration-200 ${activeTab === "goals" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
+              >
+                <span className="mr-1.5">🎯</span>
+                Goals
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Badge variant="secondary" className="text-xs">
             {filteredNotes.length} notes
           </Badge>
@@ -914,132 +1001,324 @@ export default function NotesApp() {
       </motion.header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <AnimatePresence>
-          {!sidebarCollapsed && (
-            <motion.div
-              initial={{ x: -320, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -320, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className={`w-80 ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-r flex flex-col transition-colors duration-300`}
-            >
-              <div
-                className={`p-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}
-              >
-                <TagFilter
-                  allTags={allTags}
-                  selectedTags={selectedTags}
-                  onTagsChange={setSelectedTags}
-                  darkMode={darkMode}
-                />
-              </div>
-              <div className="flex-1 overflow-auto">
-                <NotesList
-                  notes={filteredNotes}
-                  selectedNote={selectedNote}
-                  onSelectNote={setSelectedNote}
-                  viewMode={viewMode}
-                  favoriteNotes={favoriteNotes}
-                  archivedNotes={archivedNotes}
-                  onToggleFavorite={toggleFavorite}
-                  onToggleArchive={toggleArchive}
-                  darkMode={darkMode}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <motion.div
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
           className="flex-1 flex flex-col"
-          animate={{ marginLeft: sidebarCollapsed ? 0 : 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
         >
-          <AnimatePresence mode="wait">
-            {selectedNote ? (
-              <motion.div
-                key={selectedNote.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="flex-1 flex flex-col"
-              >
-                <NoteEditor
-                  note={selectedNote}
-                  onUpdateNote={updateNote}
-                  onDeleteNote={deleteNote}
-                  isFavorite={favoriteNotes.includes(selectedNote.id)}
-                  isArchived={archivedNotes.includes(selectedNote.id)}
-                  onToggleFavorite={() => toggleFavorite(selectedNote.id)}
-                  onToggleArchive={() => toggleArchive(selectedNote.id)}
-                  darkMode={darkMode}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className={`flex-1 flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"} transition-colors duration-300`}
-              >
-                <div className="text-center max-w-md">
+          <TabsContent
+            value="notes"
+            className="flex-1 flex overflow-hidden m-0"
+          >
+            {/* Sidebar */}
+            <AnimatePresence>
+              {!sidebarCollapsed && (
+                <motion.div
+                  initial={{ x: -320, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -320, opacity: 0 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className={`w-80 ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} border-r flex flex-col transition-colors duration-300`}
+                >
+                  <div
+                    className={`p-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}
+                  >
+                    <TagFilter
+                      allTags={allTags}
+                      selectedTags={selectedTags}
+                      onTagsChange={setSelectedTags}
+                      darkMode={darkMode}
+                    />
+                  </div>
+                  <div className="flex-1 overflow-auto">
+                    <NotesList
+                      notes={filteredNotes}
+                      selectedNote={selectedNote}
+                      onSelectNote={setSelectedNote}
+                      viewMode={viewMode}
+                      favoriteNotes={favoriteNotes}
+                      archivedNotes={archivedNotes}
+                      onToggleFavorite={toggleFavorite}
+                      onToggleArchive={toggleArchive}
+                      darkMode={darkMode}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Main Content */}
+            <motion.div
+              className="flex-1 flex flex-col"
+              animate={{ marginLeft: sidebarCollapsed ? 0 : 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            >
+              <AnimatePresence mode="wait">
+                {selectedNote ? (
                   <motion.div
-                    className="text-6xl mb-4"
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3,
-                    }}
+                    key={selectedNote.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex-1 flex flex-col"
                   >
-                    📝
+                    <NoteEditor
+                      note={selectedNote}
+                      onUpdateNote={updateNote}
+                      onDeleteNote={deleteNote}
+                      isFavorite={favoriteNotes.includes(selectedNote.id)}
+                      isArchived={archivedNotes.includes(selectedNote.id)}
+                      onToggleFavorite={() => toggleFavorite(selectedNote.id)}
+                      onToggleArchive={() => toggleArchive(selectedNote.id)}
+                      darkMode={darkMode}
+                    />
                   </motion.div>
-                  <h2
-                    className={`text-xl font-medium ${darkMode ? "text-white" : "text-gray-900"} mb-2`}
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className={`flex-1 flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"} transition-colors duration-300`}
                   >
-                    {notes.length === 0
-                      ? "Welcome to Personal Notes!"
-                      : "Select a note to start editing"}
+                    <div className="text-center max-w-md">
+                      <motion.div
+                        className="text-6xl mb-4"
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatDelay: 3,
+                        }}
+                      >
+                        📝
+                      </motion.div>
+                      <h2
+                        className={`text-xl font-medium ${darkMode ? "text-white" : "text-gray-900"} mb-2`}
+                      >
+                        {notes.length === 0
+                          ? "Welcome to Personal Notes!"
+                          : "Select a note to start editing"}
+                      </h2>
+                      <p
+                        className={`${darkMode ? "text-gray-400" : "text-gray-500"} mb-6`}
+                      >
+                        {notes.length === 0
+                          ? "Create your first note to get started with organizing your thoughts"
+                          : "Choose a note from the sidebar or create a new one"}
+                      </p>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          onClick={createNewNote}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+                          size="lg"
+                        >
+                          <Plus className="h-5 w-5 mr-2" />
+                          {notes.length === 0
+                            ? "Create your first note"
+                            : "Create new note"}
+                        </Button>
+                      </motion.div>
+                      <div className="mt-8 text-sm text-gray-400">
+                        <p>
+                          💡 Tip: Use{" "}
+                          <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">
+                            Ctrl+N
+                          </kbd>{" "}
+                          to create a new note
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="chat" className="flex-1 m-0">
+            <ChatGroups darkMode={darkMode} />
+          </TabsContent>
+
+          <TabsContent value="templates" className="flex-1 m-0">
+            <div className="h-full">
+              {/* Templates feature will be implemented */}
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📋</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Note Templates
                   </h2>
                   <p
-                    className={`${darkMode ? "text-gray-400" : "text-gray-500"} mb-6`}
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
                   >
-                    {notes.length === 0
-                      ? "Create your first note to get started with organizing your thoughts"
-                      : "Choose a note from the sidebar or create a new one"}
+                    Create and manage reusable note templates
                   </p>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      onClick={createNewNote}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
-                      size="lg"
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      {notes.length === 0
-                        ? "Create your first note"
-                        : "Create new note"}
-                    </Button>
-                  </motion.div>
-                  <div className="mt-8 text-sm text-gray-400">
-                    <p>
-                      💡 Tip: Use{" "}
-                      <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">
-                        Ctrl+N
-                      </kbd>{" "}
-                      to create a new note
-                    </p>
-                  </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📊</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Analytics Dashboard
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Track your writing habits and productivity
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📅</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Calendar View
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    View your notes in a calendar layout
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="kanban" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📌</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Kanban Board
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Organize notes in a kanban-style board
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="mindmap" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🧠</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Mind Map
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Visualize connections between your notes
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pomodoro" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">⏰</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Pomodoro Timer
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Focus timer for productive writing sessions
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="habits" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">✅</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Habit Tracker
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Track your daily writing and note-taking habits
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="goals" className="flex-1 m-0">
+            <div className="h-full">
+              <div
+                className={`h-full flex items-center justify-center ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🎯</div>
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                  >
+                    Goal Setting
+                  </h2>
+                  <p
+                    className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
+                    Set and track your writing and learning goals
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

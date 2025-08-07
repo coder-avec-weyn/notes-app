@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from "../supabase/auth";
 import { Toaster } from "./components/ui/toaster";
 import { ToastProvider } from "./components/ui/toast-provider";
 import { LoadingScreen } from "./components/ui/loading-spinner";
+import ProfilePage from "./components/pages/ProfilePage";
+import SettingsPage from "./components/pages/SettingsPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -42,6 +44,22 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <NotesApp />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <SettingsPage />
             </PrivateRoute>
           }
         />
