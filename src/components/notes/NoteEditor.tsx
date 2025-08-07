@@ -12,12 +12,22 @@ interface NoteEditorProps {
   note: Note;
   onUpdateNote: (noteId: string, updates: Partial<Note>) => void;
   onDeleteNote: (noteId: string) => void;
+  isFavorite?: boolean;
+  isArchived?: boolean;
+  onToggleFavorite?: () => void;
+  onToggleArchive?: () => void;
+  darkMode?: boolean;
 }
 
 export function NoteEditor({
   note,
   onUpdateNote,
   onDeleteNote,
+  isFavorite = false,
+  isArchived = false,
+  onToggleFavorite,
+  onToggleArchive,
+  darkMode = false,
 }: NoteEditorProps) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -102,7 +112,9 @@ export function NoteEditor({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white">
+    <div
+      className={`flex-1 flex flex-col ${darkMode ? "bg-gray-900" : "bg-white"}`}
+    >
       {/* Editor Header */}
       <div className="border-b border-gray-200 p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">

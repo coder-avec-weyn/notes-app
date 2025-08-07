@@ -7,12 +7,14 @@ interface TagFilterProps {
   allTags: string[];
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
+  darkMode?: boolean;
 }
 
 export function TagFilter({
   allTags,
   selectedTags,
   onTagsChange,
+  darkMode = false,
 }: TagFilterProps) {
   const toggleTag = (tag: string) => {
     if (selectedTags.includes(tag)) {
