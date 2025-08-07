@@ -1,8 +1,51 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "../../../supabase/supabase";
 import { useAuth } from "../../../supabase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import {
   Plus,
   Search,
@@ -38,6 +81,252 @@ import {
   EyeOff,
   Maximize2,
   Minimize2,
+  Copy,
+  Printer,
+  Mail,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Pin,
+  PinOff,
+  Trash,
+  Edit,
+  Save,
+  RefreshCw,
+  History,
+  Timer,
+  Target,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  Activity,
+  Mic,
+  MicOff,
+  Camera,
+  Image,
+  Paperclip,
+  Link,
+  Code,
+  Type,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  ListOrdered,
+  Quote,
+  Highlighter,
+  Scissors,
+  Undo,
+  Redo,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  RotateCw,
+  FlipHorizontal,
+  FlipVertical,
+  Layers,
+  Move,
+  MousePointer,
+  Hand,
+  Crosshair,
+  Focus,
+  Scan,
+  Shield,
+  ShieldCheck,
+  Key,
+  Fingerprint,
+  Wifi,
+  WifiOff,
+  Battery,
+  BatteryLow,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  Square,
+  SkipBack,
+  SkipForward,
+  Repeat,
+  Shuffle,
+  Radio,
+  Headphones,
+  Speaker,
+  Gamepad2,
+  Joystick,
+  Dices,
+  Puzzle,
+  Trophy,
+  Award,
+  Medal,
+  Gift,
+  PartyPopper,
+  Sparkles,
+  Flame,
+  Snowflake,
+  Sun as SunIcon,
+  CloudRain,
+  CloudSnow,
+  Wind,
+  Thermometer,
+  Compass,
+  Map,
+  MapPin,
+  Navigation,
+  Route,
+  Car,
+  Plane,
+  Train,
+  Ship,
+  Bike,
+  Footprints,
+  Home,
+  Building,
+  Store,
+  Factory,
+  Landmark,
+  TreePine,
+  Mountain,
+  Waves,
+  Sunrise,
+  Sunset,
+  Rainbow,
+  Umbrella,
+  Coffee,
+  Pizza,
+  Apple,
+  Cherry,
+  Grape,
+  Banana,
+  Carrot,
+  Fish,
+  Beef,
+  Egg,
+  Milk,
+  Bread,
+  Cookie,
+  IceCream,
+  Cake,
+  Wine,
+  Beer,
+  Martini,
+  Utensils,
+  ChefHat,
+  Scale,
+  Calculator,
+  Ruler,
+  Scissors as ScissorsIcon,
+  Wrench,
+  Hammer,
+  Screwdriver,
+  Paintbrush,
+  Palette as PaletteIcon,
+  Pipette,
+  Eraser,
+  Pen,
+  PenTool,
+  Pencil,
+  Marker,
+  Highlighter as HighlighterIcon,
+  Stamp,
+  Sticker,
+  Paperclip as PaperclipIcon,
+  Pin as PinIcon,
+  Pushpin,
+  Magnet,
+  Anchor,
+  Chain,
+  Unlink,
+  Link2,
+  ExternalLink,
+  ArrowUpRight,
+  ArrowDownLeft,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronsUp,
+  ChevronsDown,
+  CornerDownLeft,
+  CornerDownRight,
+  CornerUpLeft,
+  CornerUpRight,
+  Move3D,
+  RotateCcw as RotateIcon,
+  FlipHorizontal as FlipIcon,
+  Maximize,
+  Minimize,
+  Expand,
+  Shrink,
+  ZoomIn as ZoomInIcon,
+  ZoomOut as ZoomOutIcon,
+  ScanLine,
+  Focus as FocusIcon,
+  Crosshair as CrosshairIcon,
+  Target as TargetIcon,
+  Locate,
+  LocateFixed,
+  LocateOff,
+  Navigation2,
+  Send,
+  SendHorizontal,
+  Reply,
+  ReplyAll,
+  Forward,
+  Inbox,
+  Outbox,
+  Mail as MailIcon,
+  MailOpen,
+  MailPlus,
+  MailMinus,
+  MailX,
+  MailCheck,
+  MailWarning,
+  MailQuestion,
+  AtSign,
+  Hash,
+  DollarSign,
+  Percent,
+  Equal,
+  Plus as PlusIcon,
+  Minus,
+  X,
+  Divide,
+  Asterisk,
+  Power,
+  SquareRoot,
+  Infinity,
+  Pi,
+  Sigma,
+  Alpha,
+  Beta,
+  Gamma,
+  Delta,
+  Lambda,
+  Mu,
+  Omega,
+  Phi,
+  Psi,
+  Chi,
+  Zeta,
+  Eta,
+  Theta,
+  Iota,
+  Kappa,
+  Nu,
+  Xi,
+  Omicron,
+  Rho,
+  Tau,
+  Upsilon,
+  Sigma as SigmaIcon,
 } from "lucide-react";
 import { NotesList } from "./NotesList";
 import { NoteEditor } from "./NoteEditor";
@@ -50,6 +339,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -68,6 +363,39 @@ export interface Note {
   user_id: string;
   created_at: string;
   updated_at: string;
+  color?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  category?: string;
+  reminder_date?: string;
+  is_pinned?: boolean;
+  is_locked?: boolean;
+  word_count?: number;
+  reading_time?: number;
+  template_id?: string;
+  collaborators?: string[];
+  version?: number;
+  parent_id?: string;
+  attachments?: string[];
+  location?: { lat: number; lng: number; name: string };
+  mood?: string;
+  weather?: string;
+  music?: string;
+  voice_note?: string;
+  drawing?: string;
+  checklist?: { id: string; text: string; completed: boolean }[];
+  links?: { url: string; title: string; description: string }[];
+  mentions?: string[];
+  hashtags?: string[];
+  encryption_key?: string;
+  backup_count?: number;
+  sync_status?: "synced" | "pending" | "error";
+  offline_changes?: boolean;
+  ai_summary?: string;
+  sentiment_score?: number;
+  readability_score?: number;
+  language?: string;
+  translation?: { [key: string]: string };
+  custom_fields?: { [key: string]: any };
 }
 
 export default function NotesApp() {
